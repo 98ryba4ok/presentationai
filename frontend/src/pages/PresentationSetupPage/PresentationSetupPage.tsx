@@ -235,7 +235,7 @@ const PresentationSetupPage: React.FC = () => {
                   <button className="slider-btn next" onClick={nextSlide}>›</button>
                 </div>
 
-                <div>
+                <div className="SETUP-template-info">
                   <h2>{template.title}</h2>
                   <p>{template.description}</p>
                 </div>
