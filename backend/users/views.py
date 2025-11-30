@@ -92,7 +92,7 @@ class RegisterSendCodeView(APIView):
         send_mail(
             subject="Код для регистрации",
             message=f"Ваш код: {code}",
-            from_email="presentationai@yandex.ru",
+            from_email="presentationaipro@gmail.com",
             recipient_list=[email],
             fail_silently=False,
             html_message=html_message
@@ -123,7 +123,7 @@ class LoginSendCodeView(APIView):
         send_mail(
             subject="Код для входа",
             message=f"Ваш код: {code}",
-            from_email="presentationai@yandex.ru",
+            from_email="presentationaipro@gmail.com",
             recipient_list=[email],
             fail_silently=False,
             html_message=html_message
