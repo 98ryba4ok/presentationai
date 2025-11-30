@@ -63,6 +63,13 @@ http {
             add_header Cache-Control "public, immutable";
         }
 
+        location ~* ^/media/(.+\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))$ {
+            root /;
+            access_log off;
+            expires 30d;
+            add_header Cache-Control "public, immutable";
+        }
+
         # API запросы
         location /api/ {
             proxy_pass http://django:8000;
