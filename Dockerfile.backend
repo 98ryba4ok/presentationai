@@ -1,24 +1,18 @@
-FROM python:3.13-alpine
+FROM python:3.13-slim
 
-# Устанавливаем нужные утилиты и библиотеки для TLS
-RUN apk add --no-cache \
-    bash \
+RUN apt-get update && apt-get install -y \
     curl \
-    openssl \
+    bash \
     ca-certificates \
-    libffi \
-    build-base \
-    musl-dev \
+    libffi-dev \
+    build-essential \
     && update-ca-certificates
 
 WORKDIR /usr/src/app
 
-# Устанавливаем зависимости Python
 COPY ./backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем исходники
 COPY --chmod=0755 ./backend .
 
-# Устанавливаем точку входа
 CMD ["sh", "./backend-entrypoint.sh"]
