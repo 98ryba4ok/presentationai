@@ -19,10 +19,10 @@ services:
     depends_on:
       - pgdb
     healthcheck:
-    test: ["CMD-SHELL", "curl -fs http://127.0.0.1:8000/ || exit 1"]
-    interval: 10s
-    timeout: 3s
-    retries: 5
+      test: ["CMD-SHELL", "curl -fs http://127.0.0.1:8000/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
 
   pgdb:
