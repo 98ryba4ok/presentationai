@@ -6,4 +6,4 @@ python manage.py migrate --noinput
 
 echo "🚀 Starting Gunicorn with stdout logging..."
 
-sleep 2 && python manage.py runserver
+python manage.py runserver
