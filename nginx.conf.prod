@@ -29,7 +29,7 @@ http {
     server {
         listen 0.0.0.0:80;
         server_name <INSERT_DOMAIN>;
-        
+
         location /.well-known/acme-challenge/ {
             root /var/www/certbot;
         }
@@ -43,33 +43,40 @@ http {
     server {
         listen 0.0.0.0:443 ssl http2;
         server_name <INSERT_DOMAIN>;
-        
+
         client_max_body_size 50M;
 
         ssl_certificate /etc/letsencrypt/live/<INSERT_DOMAIN>/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/<INSERT_DOMAIN>/privkey.pem;
         ssl_trusted_certificate /etc/letsencrypt/live/<INSERT_DOMAIN>/chain.pem;
 
-        # SSL configuration
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers on;
 
-        # Раздача статики с правильными MIME типами
-        location ~* ^/static/(.+\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))$ {
-            root /;
+        # --------------------------
+        # STATIC
+        # --------------------------
+        location /static/ {
+            alias /static/;
             access_log off;
             expires 30d;
             add_header Cache-Control "public, immutable";
         }
 
-        location ~* ^/media/(.+\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))$ {
-            root /;
+        # --------------------------
+        # MEDIA — включает любые файлы (pptx, pdf, zip и т.д.)
+        # --------------------------
+        location /media/ {
+            alias /media/;
             access_log off;
             expires 30d;
             add_header Cache-Control "public, immutable";
         }
 
+        # --------------------------
+        # Django API + админка
+        # --------------------------
         location /api/ {
             try_files $uri @django;
         }
@@ -86,7 +93,9 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # SPA routing — все остальные пути → index.html
+        # --------------------------
+        # SPA (frontend build)
+        # --------------------------
         location / {
             root /static;
             try_files $uri $uri/ /index.html;
