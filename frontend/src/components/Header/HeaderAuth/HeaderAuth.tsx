@@ -32,7 +32,7 @@ const HeaderMainPage: React.FC = () => {
                 className="btn-secondary"
                 onClick={() => setDialogOpen(true)}
               >
-                Регистрация
+                Войти
               </button>
             <button className="btn-primary" onClick={() => showToast('Сначала нужно зарегестрироваться', 'error')}>Создать презентацию</button>
           </div>
