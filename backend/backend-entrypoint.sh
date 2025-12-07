@@ -6,4 +6,4 @@ python manage.py migrate --noinput
 
 echo "🚀 Starting Gunicorn with stdout logging..."
 
-python manage.py runserver 0.0.0.0:8000
+gunicorn presentations_project.wsgi:application --reload --bind 0.0.0.0:8000 --workers 4
