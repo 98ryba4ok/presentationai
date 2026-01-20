@@ -1,8 +1,9 @@
 .sample-card{
-    height: 478px;
+    min-height: 478px;
     width: 424px;
-         background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 25px;
+    max-width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
 }
 .sample-card-title{
     color: #fff;
@@ -22,5 +23,101 @@ padding: 30px;
 }
 .sample-card img{
     width: 424px;
-    height: 243px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 25px 25px 0 0;
+}
+
+/* Экраны 1200px - 1400px */
+@media screen and (max-width: 1400px) and (min-width: 1200px) {
+  .sample-card {
+    width: 380px;
+    min-height: 450px;
+  }
+
+  .sample-card img {
+    width: 380px;
+  }
+
+  .sample-card-title {
+    font-size: 28px;
+  }
+
+  .sample-card-text {
+    font-size: 15px;
+  }
+
+  .sample-card-bottom {
+    padding: 24px;
+  }
+}
+
+/* Экраны 1024px - 1199px */
+@media screen and (max-width: 1199px) and (min-width: 1024px) {
+  .sample-card {
+    width: 310px;
+    min-height: 420px;
+  }
+
+  .sample-card img {
+    width: 310px;
+  }
+
+  .sample-card-title {
+    font-size: 26px;
+  }
+
+  .sample-card-text {
+    font-size: 14px;
+  }
+
+  .sample-card-bottom {
+    padding: 20px;
+  }
+}
+
+/* Tablet и мобильные устройства */
+@media screen and (max-width: 1023px) {
+  .sample-card {
+    width: 100%;
+    max-width: 424px;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .sample-card {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .sample-card img {
+    width: 100%;
+  }
+
+  .sample-card-title {
+    font-size: 28px;
+  }
+
+  .sample-card-text {
+    font-size: 15px;
+  }
+
+  .sample-card-bottom {
+    padding: 24px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sample-card-title {
+    font-size: 24px;
+  }
+
+  .sample-card-text {
+    font-size: 14px;
+  }
+
+  .sample-card-bottom {
+    padding: 20px;
+  }
 }

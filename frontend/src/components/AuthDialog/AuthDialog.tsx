@@ -48,12 +48,37 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ isOpen, onClose }) => {
   const { showToast } = useToast();
 
   useEffect(() => {
-    let interval: number;
-    if (step === "code" && timer > 0) {
-      interval = window.setInterval(() => setTimer((prev) => prev - 1), 1000);
-    }
+    if (step !== "code") return;
+
+    const interval = window.setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [step, timer]);
+  }, [step]);
+
+  // Сброс формы при открытии диалога
+  useEffect(() => {
+    if (isOpen) {
+      setStep("register");
+      setEmail("");
+      setName("");
+      setPassword("");
+      setCode(["", "", "", "", ""]);
+      setTimer(30);
+      setShowPassword(false);
+      setIsRegistering(true);
+      setIsPrivacyChecked(false);
+      setPrivacyError("");
+      setErrors({});
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -68,6 +93,61 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ isOpen, onClose }) => {
         nextInput?.focus();
       }
 
+      if (newCode.every((digit) => digit !== "")) {
+        setTimeout(() => handleVerifyCode(newCode.join("")), 300);
+      }
+    }
+  };
+
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const newCode = [...code];
+
+      if (code[index]) {
+        // Если в текущем поле есть цифра — удаляем её
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        // Если поле пустое — переходим на предыдущее и удаляем там
+        newCode[index - 1] = "";
+        setCode(newCode);
+        const prevInput = document.getElementById(`code-${index - 1}`);
+        prevInput?.focus();
+      }
+    } else if (e.key === "Delete") {
+      e.preventDefault();
+      const newCode = [...code];
+      newCode[index] = "";
+      setCode(newCode);
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      const prevInput = document.getElementById(`code-${index - 1}`);
+      prevInput?.focus();
+    } else if (e.key === "ArrowRight" && index < 4) {
+      const nextInput = document.getElementById(`code-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+    // Извлекаем только цифры
+    const digits = pastedData.replace(/\D/g, "").slice(0, 5);
+
+    if (digits.length > 0) {
+      const newCode = [...code];
+      for (let i = 0; i < 5; i++) {
+        newCode[i] = digits[i] || "";
+      }
+      setCode(newCode);
+
+      // Фокус на последнее заполненное поле или следующее пустое
+      const focusIndex = Math.min(digits.length, 4);
+      const targetInput = document.getElementById(`code-${focusIndex}`);
+      targetInput?.focus();
+
+      // Если вставили полный код — отправляем
       if (newCode.every((digit) => digit !== "")) {
         setTimeout(() => handleVerifyCode(newCode.join("")), 300);
       }
@@ -414,10 +494,13 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ isOpen, onClose }) => {
                     <input
                       id={`code-${idx}`}
                       type="text"
+                      inputMode="numeric"
                       maxLength={1}
                       value={digit}
                       className="code-input"
                       onChange={(e) => handleCodeChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleCodeKeyDown(idx, e)}
+                      onPaste={handleCodePaste}
                     />
                   </span>
                 );

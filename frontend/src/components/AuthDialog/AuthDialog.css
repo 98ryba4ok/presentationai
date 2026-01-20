@@ -324,3 +324,10 @@
   margin-top: 4px;
   align-self: flex-start;
 }
+
+@media (max-width: 767px) {
+  .dialog-star {
+    top: 130px;
+    right: 25px;
+  }
+}

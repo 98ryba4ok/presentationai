@@ -114,9 +114,10 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.tokens = null;
+      state.isLoading = false;
+      state.error = null;
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
-      console.log("❌ Пользователь вышел");
     },
     setTokens(state, action: PayloadAction<Tokens>) {
       state.tokens = action.payload;
@@ -127,12 +128,14 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(verifyRegisterCode.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+        state.isLoading = false;
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
         localStorage.setItem("access", action.payload.tokens.access);
         localStorage.setItem("refresh", action.payload.tokens.refresh);
       })
       .addCase(verifyLoginCode.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
+        state.isLoading = false;
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
         localStorage.setItem("access", action.payload.tokens.access);
@@ -141,14 +144,20 @@ const authSlice = createSlice({
       .addCase(fetchUserProfile.fulfilled, (state, action: PayloadAction<User>) => {
         state.user = action.payload;
       })
-      .addCase(changePassword.fulfilled, (state, action) => {
+      .addCase(changePassword.fulfilled, (state) => {
         state.isLoading = false;
-        console.log("🔒", action.payload);
       })
       .addMatcher(
         (action) => action.type.startsWith("auth/") && action.type.endsWith("/pending"),
         (state) => {
           state.isLoading = true;
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.startsWith("auth/") && action.type.endsWith("/fulfilled"),
+        (state) => {
+          state.isLoading = false;
           state.error = null;
         }
       )

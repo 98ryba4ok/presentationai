@@ -1,0 +1,137 @@
+.price-card {
+  position: relative;
+  background: #29243C;
+  border: 1px solid #3B3B3B;
+  border-radius: 12px;
+  color: #fff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  gap: 18px;
+}
+
+.price-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+}
+
+.price-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(32, 28, 55, 0.4);
+  border-radius: 8px;
+  padding: 24px;
+  width: 474px;
+  max-width: 474px;
+  box-sizing: border-box;
+}
+
+.price-generations {
+  font-size: 14px;
+  color: #8C87A8;
+  margin: 0;
+  margin-bottom: 17px;
+}
+
+.price-current {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 600;
+  color: #fff;
+}
+
+.price-promo {
+  position: relative;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  width: 474px;
+  max-width: 474px;
+  box-sizing: border-box;
+  background-color: rgba(105, 55, 147, 0.5);
+  border-radius: 8px;
+}
+
+.price-promo-ti {
+  color: #fff;
+  font-size: 14px;
+  margin: 0;
+  margin-bottom: 17px;
+}
+
+.price-old {
+  margin: 0;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 1);
+}
+
+.price-old span {
+  margin: 0;
+  font-size: 16px;
+  color: #8C87A8;
+  text-decoration: line-through;
+}
+
+.price-fire {
+  position: absolute;
+  top: -13px;
+  right: -18px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Экраны 1024px - 1199px */
+@media screen and (max-width: 1199px) {
+  .price-content,
+  .price-promo {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+/* Планшеты 768px - 1023px */
+@media screen and (max-width: 1023px) {
+  .price-content,
+  .price-promo {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Мобильные 480px - 767px */
+@media screen and (max-width: 767px) {
+  .price-card {
+    padding: 20px 16px;
+    width: 100%;
+  }
+
+  .price-title {
+    font-size: 20px;
+  }
+}
+
+/* Маленькие мобильные < 480px */
+@media screen and (max-width: 480px) {
+  .price-generations {
+    font-size: 13px;
+  }
+
+  .price-current {
+    font-size: 18px;
+  }
+
+  .price-old {
+    font-size: 20px;
+  }
+
+  .price-old span {
+    font-size: 14px;
+  }
+}

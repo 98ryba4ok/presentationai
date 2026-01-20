@@ -2,11 +2,11 @@
   position: relative;
   max-width: 1300px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 40px;
-  justify-content: start; 
-  padding: 40px 0;
+  justify-content: start;
+  padding: 100px 20px 40px;
   z-index: 1;
 }
 
@@ -22,15 +22,123 @@
   border-radius: 50%;
   opacity: 0.4;
   filter: blur(100px);
-  z-index: 0;
+  z-index: -1;
 }
 .page-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height: 100vh;
 }
 
 .main {
   flex: 1;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Экраны 1200px - 1400px */
+@media screen and (max-width: 1400px) {
+  .presentations-grid {
+    max-width: 95%;
+    gap: 30px;
+    padding: 100px 20px 40px;
+  }
+}
+
+/* Экраны 1024px - 1199px */
+@media screen and (max-width: 1199px) {
+  .presentations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 100px 20px 40px;
+  }
+
+  .main::before {
+    width: 500px;
+    height: 500px;
+    left: -150px;
+  }
+}
+
+/* Планшеты 768px - 1023px */
+@media screen and (max-width: 1023px) {
+  .presentations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 100px 16px 32px;
+  }
+
+  .main::before {
+    width: 400px;
+    height: 400px;
+    top: 50px;
+    left: -100px;
+  }
+}
+
+/* Мобильные 480px - 767px */
+@media screen and (max-width: 767px) {
+  .presentations-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 80px 16px 24px;
+    justify-items: center;
+  }
+
+  .main::before {
+    width: 300px;
+    height: 300px;
+    top: 0;
+    left: -50px;
+    opacity: 0.3;
+  }
+}
+
+/* Маленькие мобильные < 480px */
+@media screen and (max-width: 480px) {
+  .presentations-grid {
+    padding: 80px 12px 24px;
+    gap: 12px;
+  }
+
+  .main::before {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+/* Loader и Error состояния */
+.presentations-loader,
+.presentations-error {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #fff;
+}
+
+.presentations-error p {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.presentations-error button {
+  background: linear-gradient(90deg, #2D1140 6%, #9F2EFD 68%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 32px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.presentations-error button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }

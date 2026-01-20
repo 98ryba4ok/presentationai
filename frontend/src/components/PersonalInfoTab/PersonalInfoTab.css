@@ -1,0 +1,172 @@
+.tab-info {
+  padding: 0 40px;
+}
+
+.tab-info-h2 {
+  font-size: 32px;
+  color: #fff;
+  margin: 0;
+  margin-bottom: 24px;
+}
+
+.tab-info-h3 {
+  margin: 0;
+  margin-top: 32px;
+  margin-bottom: 24px;
+  font-size: 24px;
+  color: #fff;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.form-group input {
+  background: #29243C;
+  border: 1px solid #3B3B3B;
+  width: 333px;
+  height: 34px;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.form-group input[readonly] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.password-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-placeholder {
+  background: #29243C;
+  border: 1px solid #3B3B3B;
+  width: 333px;
+  height: 34px;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+  font-size: 16px;
+}
+
+.profile-change {
+  background-color: #29243C;
+  border: 1px solid #3B3B3B;
+  border-radius: 10px;
+  height: 56px;
+  width: 56px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-change:hover {
+  background-color: #3B3B3B;
+}
+
+/* Экраны 1024px - 1199px */
+@media screen and (max-width: 1199px) {
+  .tab-info-h2 {
+    font-size: 28px;
+  }
+}
+
+/* Планшеты 768px - 1023px */
+@media screen and (max-width: 1023px) {
+  .form-group input,
+  .password-placeholder {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .tab-info-h2 {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .tab-info-h3 {
+    font-size: 20px;
+  }
+}
+
+/* Мобильные 480px - 767px */
+@media screen and (max-width: 767px) {
+  .tab-info {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .tab-info-h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .tab-info-h3 {
+    font-size: 18px;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .form-group {
+    width: 100%;
+    align-items: center;
+  }
+
+  .form-group input,
+  .password-placeholder {
+    width: 100%;
+    max-width: 100%;
+    height: 44px;
+  }
+
+  .password-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-change {
+    height: 48px;
+    width: 48px;
+  }
+}
+
+/* Маленькие мобильные < 480px */
+@media screen and (max-width: 480px) {
+  .tab-info-h2 {
+    font-size: 20px;
+  }
+
+  .tab-info-h3 {
+    font-size: 16px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .form-group input {
+    font-size: 14px;
+    height: 40px;
+  }
+}

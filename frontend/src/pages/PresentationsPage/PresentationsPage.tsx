@@ -1,34 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./PresentationsPage.css";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
-import PresentationCard from "../../components/PresentationCard/PresentationCard";
-import { fetchPresentationTemplates} from "../../api/presentations";
-import type { PresentationTemplate } from "../../types/presentation";
+import TemplatesGrid from "../../components/TemplatesGrid/TemplatesGrid";
+import Loader from "../../components/Loader/Loader";
 import { useNavigate } from "react-router-dom";
+import { useTemplates } from "../../hooks/useTemplates";
 
 const PresentationsPage: React.FC = () => {
-  const [templates, setTemplates] = useState<PresentationTemplate[]>([]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchPresentationTemplates().then(setTemplates).catch(console.error);
-  }, []);
+  const { templates, loading, error, retry } = useTemplates();
 
   return (
     <div className="page-wrapper">
       <Header />
       <main className="main presentations-grid">
-        {templates.map((template) => (
-          <PresentationCard
-            key={template.id}
-            image={template.images[0]?.image}
-            title={template.title}
-            text={template.description}
-            onSelect={() => navigate(`/presentations/${template.id}`)}
+        {loading && (
+          <div className="presentations-loader">
+            <Loader />
+          </div>
+        )}
+        {error && !loading && (
+          <div className="presentations-error">
+            <p>{error}</p>
+            <button onClick={retry}>Попробовать снова</button>
+          </div>
+        )}
+        {!loading && !error && (
+          <TemplatesGrid
+            templates={templates}
+            onSelect={(id) => navigate(`/presentations/${id}`)}
           />
-        ))}
-        
+        )}
       </main>
       <Footer />
     </div>

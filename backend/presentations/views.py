@@ -5,8 +5,11 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.conf import settings
-import json, traceback
+from django.db import transaction
+import json, re, logging
 from django.http import FileResponse, Http404
+
+logger = logging.getLogger(__name__)
 
 from .models import PresentationTemplate, UserPresentation
 from .serializers import (
@@ -39,7 +42,6 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
 
-        # Проверка пробных генераций перед созданием презентации
         if user.trial_generations <= 0:
             raise PermissionDenied("Закончились пробные генерации")
 
@@ -80,17 +82,23 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
             response = giga.chat(f"Ты создаёшь JSON-структуру презентации.\n{full_prompt}")
             raw = response.choices[0].message.content
 
-            # Очистка ```json блока
-            if raw.startswith("```") and raw.endswith("```"):
-                lines = raw.split("\n")
-                if lines and lines[0].startswith("```"):
-                    lines = lines[1:]
-                if lines and lines[-1].startswith("```"):
-                    lines = lines[:-1]
-                raw = "\n".join(lines).strip()
+            # Улучшенная очистка JSON из ответа GigaChat
+            cleaned = raw.strip()
+
+            # Убираем markdown code blocks (```json ... ``` или ``` ... ```)
+            code_block_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', cleaned)
+            if code_block_match:
+                cleaned = code_block_match.group(1).strip()
+
+            # Если не нашли code block, пробуем найти JSON напрямую
+            if not code_block_match:
+                # Ищем первую { или [ и последнюю } или ]
+                json_match = re.search(r'(\{[\s\S]*\}|\[[\s\S]*\])', cleaned)
+                if json_match:
+                    cleaned = json_match.group(1)
 
             try:
-                parsed = json.loads(raw)
+                parsed = json.loads(cleaned)
             except json.JSONDecodeError:
                 parsed = {"error": "GigaChat вернул невалидный JSON", "raw": raw}
 
@@ -100,9 +108,9 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
                 try:
                     pres_id = presentation.id
                     presentation.delete()
-                    print(f"[PresentationGenerate] Deleted presentation {pres_id} due to invalid GigaChat response")
+                    logger.warning("Deleted presentation %s due to invalid GigaChat response", pres_id)
                 except Exception as del_err:
-                    print(f"[PresentationGenerate] Failed to delete presentation {presentation.id}: {del_err}")
+                    logger.error("Failed to delete presentation %s: %s", presentation.id, del_err)
 
                 return Response({"error": "GigaChat вернул невалидный JSON", "raw": raw}, status=400)
 
@@ -112,15 +120,15 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
             return Response({"id": presentation.id, "data": presentation.data})
 
         except Exception as e:
-            traceback.print_exc()
+            logger.exception("Error generating presentation %s", presentation.id)
             # При любой ошибке во время генерации — удаляем объект презентации,
             # чтобы не оставлять пустые/некорректные записи.
             try:
                 pres_id = presentation.id
                 presentation.delete()
-                print(f"[PresentationGenerate] Deleted presentation {pres_id} due to exception")
+                logger.warning("Deleted presentation %s due to exception", pres_id)
             except Exception as del_err:
-                print(f"[PresentationGenerate] Failed to delete presentation {presentation.id}: {del_err}")
+                logger.error("Failed to delete presentation %s: %s", presentation.id, del_err)
 
             return Response({"error": "Не удалось сгенерировать презентацию", "details": str(e)}, status=400)
 
@@ -129,6 +137,7 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
         """
         Сохраняет data и генерирует PPTX.
         Уменьшает trial_generations только при успешной генерации.
+        Операции обёрнуты в транзакцию для консистентности данных.
         """
         presentation = self.get_object()
         user = request.user
@@ -137,37 +146,43 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
         if not data:
             return Response({"error": "Нет data"}, status=400)
 
-        # сохраняем структуру слайдов
-        presentation.data = data
+        # Проверяем trial_generations до начала операций
+        if user.trial_generations <= 0:
+            return Response({"error": "Закончились пробные генерации"}, status=403)
+
         image_prompt = presentation.image_prompt
 
-        # подбираем картинки (до двух)
+        # подбираем картинки (до двух) - вне транзакции, т.к. это внешний API
         image_urls = []
         if image_prompt:
             image_urls = search_image_urls(image_prompt, count=2)
 
-        # генерируем pptx, если есть шаблон
         try:
-            if presentation.template.pptx_file:
-                pptx_io = fill_pptx_template(
-                    presentation.template.pptx_file.path,
-                    data,
-                    image_urls=image_urls
-                )
-                presentation.pptx_file.save(
-                    f"{presentation.title}.pptx",
-                    ContentFile(pptx_io.read()),
-                    save=True
-                )
+            # Оборачиваем все операции с БД в транзакцию
+            with transaction.atomic():
+                # сохраняем структуру слайдов
+                presentation.data = data
 
-            # только после успешной генерации уменьшаем trial_generations
-            if user.trial_generations > 0:
+                # генерируем pptx, если есть шаблон
+                if presentation.template.pptx_file:
+                    pptx_io = fill_pptx_template(
+                        presentation.template.pptx_file.path,
+                        data,
+                        image_urls=image_urls
+                    )
+                    presentation.pptx_file.save(
+                        f"{presentation.title}.pptx",
+                        ContentFile(pptx_io.read()),
+                        save=False
+                    )
+
+                presentation.save()
+
+                # уменьшаем trial_generations в той же транзакции
                 user.trial_generations -= 1
                 user.save()
-            else:
-                return Response({"error": "Закончились пробные генерации"}, status=403)
 
-            presentation.save()
+            logger.info("Successfully saved presentation %s for user %s", presentation.id, user.id)
 
             return Response({
                 "id": presentation.id,
@@ -175,7 +190,7 @@ class UserPresentationViewSet(viewsets.ModelViewSet):
             })
 
         except Exception as e:
-            traceback.print_exc()
+            logger.exception("Error saving presentation %s", presentation.id)
             return Response(
                 {"error": "Ошибка при генерации PPTX", "details": str(e)},
                 status=500

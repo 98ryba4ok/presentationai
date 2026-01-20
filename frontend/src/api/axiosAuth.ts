@@ -70,11 +70,8 @@ axiosAuth.interceptors.response.use(
       isRefreshing = true;
 
       try {
-    
         const refreshUrl = `${axiosAuth.defaults.baseURL}/users/token/refresh/`;
-        console.debug("Refreshing access token, POST", refreshUrl, "using refresh token prefix:", refreshToken?.slice(0, 10));
         const res = await axios.post(refreshUrl, { refresh: refreshToken });
-        console.debug("Refresh response:", res?.status, res?.data);
         const newAccess = res.data.access;
         if (!newAccess) throw new Error("No access token in refresh response");
 
@@ -85,13 +82,12 @@ axiosAuth.interceptors.response.use(
         processQueue(null, newAccess);
 
         return axiosAuth(originalRequest);
-      } catch (err) {
-        console.error("Token refresh failed:", err);
-        processQueue(err, null);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         window.location.reload();
-        return Promise.reject(err);
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
