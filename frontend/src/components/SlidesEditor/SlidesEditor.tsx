@@ -7,6 +7,7 @@ type SlideExtended = Slide & { _id: string; number: number };
 interface SlidesEditorProps {
   slides: SlideExtended[];
   draggingIndex: number | null;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   onDragStart: (index: number) => void;
   onDragEnter: (index: number) => void;
   onDragEnd: () => void;
@@ -18,6 +19,7 @@ interface SlidesEditorProps {
 const SlidesEditor: React.FC<SlidesEditorProps> = ({
   slides,
   draggingIndex,
+  containerRef,
   onDragStart,
   onDragEnter,
   onDragEnd,
@@ -30,7 +32,7 @@ const SlidesEditor: React.FC<SlidesEditorProps> = ({
       <h4 className="dragh4">
         Перетягивайте слайды местами, если хотите поменять их последовательность
       </h4>
-      <div className="generated-slides">
+      <div className="generated-slides" ref={containerRef}>
         {slides.map((slide, index) => (
           <div
             key={slide._id}

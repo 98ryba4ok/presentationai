@@ -35,6 +35,7 @@ const PresentationSetupPage: React.FC = () => {
 
   const {
     draggingIndex,
+    containerRef,
     handleDragStart,
     handleDragEnter,
     handleDragEnd,
@@ -102,6 +103,7 @@ const PresentationSetupPage: React.FC = () => {
                 <SlidesEditor
                   slides={slides}
                   draggingIndex={draggingIndex}
+                  containerRef={containerRef}
                   onDragStart={handleDragStart}
                   onDragEnter={handleDragEnter}
                   onDragEnd={handleDragEnd}

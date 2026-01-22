@@ -39,8 +39,16 @@ class UserPresentationCreateSerializer(serializers.ModelSerializer):
 
 class UserPresentationSerializer(serializers.ModelSerializer):
     data = serializers.JSONField()
-    pptx_file = serializers.FileField(read_only=True)
+    pptx_file = serializers.SerializerMethodField()
 
     class Meta:
         model = UserPresentation
         fields = ["id", "data", "title", "pptx_file", "created_at"]
+
+    def get_pptx_file(self, obj):
+        if not obj.pptx_file:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.pptx_file.url)
+        return obj.pptx_file.url
